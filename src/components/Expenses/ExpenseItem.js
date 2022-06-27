@@ -20,8 +20,9 @@ const ExpenseItem = (props) => {
   }
 
 
-  const handleSubmitChanges = () => {
-    if (!newAmount && !newCompleteDate) {alert('Enter values for new date and amount'); return;}
+  const handleSubmitChanges = (e) => {
+    e.preventDefault();
+    if (!newAmount && !newCompleteDate) {alert('Enter values for new date or amount'); return;}
     props.updateExpense(newAmount, newCompleteDate);
     setNewAmount('')
     setNewCompleteDate('')
@@ -32,17 +33,21 @@ const ExpenseItem = (props) => {
   return (
     <li>
       <Card className='expense-item'>
-        <ExpenseDate date={props.date} />
+        
+        
         <div className='expense-item__description'>
+        <ExpenseDate date={props.date} />
           <h2>{props.title}</h2>
-          <button className="update-button" onClick= {handleStartUpdate}>Update</button>
-          <button className="update-button">Clear</button>
+          {props.selectedView === 0 && <button className="update-button" onClick= {handleStartUpdate}>Update</button>}
+          <button className="update-button" onClick= {props.selectedView === 0 ? props.clearExpense : props.deleteExpense}>
+            {props.selectedView === 0 ? "Clear": "Delete"}
+          </button>
           <div className='expense-item__price'>${props.amount}</div>
         </div>
 
-        {updateView && <div>
+        {updateView && <div style={{margin: "30px 0px"}}>
           <div>
-            <button onClick= {props.handleRemoveExpense}>Remove Expense</button>
+            <button className="update-button" onClick= {props.removeExpense}>Remove Expense</button>
           </div>
 
           <form onSubmit={handleSubmitChanges}>
@@ -69,8 +74,8 @@ const ExpenseItem = (props) => {
               </div>
             </div>
             <div className='new-expense__actions'>
-              <button type="button" onClick={() => setUpdateView(false)}>Cancel</button>
-              <button type='submit'>Add Expense</button>
+              <button className="update-button" type="button" onClick={() => setUpdateView(false)}>Cancel</button>
+              <button className="update-button" type='submit'>Update</button>
             </div>
           </form>
         </div>}

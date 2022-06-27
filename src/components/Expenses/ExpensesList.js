@@ -15,7 +15,12 @@ const ExpensesList = (props) => {
           key={expense.id}
           title={expense.title}
           amount={expense.amount}
-          date={expense.date}
+          date={expense.expectedCompleteDate}
+          updateExpense= {(amt, date_)=> props.updateExpense(expense.id, amt, date_)}
+          clearExpense= {()=> props.clearExpense(expense.id)}
+          removeExpense= {()=> props.updateExpense(expense.id)}
+          deleteExpense= {()=> props.deleteExpense(expense.id)}
+          selectedView = {props.selectedView}
         />
       ))}
     </ul>

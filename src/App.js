@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Wallet } from './utils/nearconfig';
+import { Wallet, Contract } from './utils/nearconfig';
 
 import Home from './components/home';
 import NewExpense from './components/NewExpense/NewExpense';
@@ -28,47 +28,104 @@ const DUMMY_EXPENSES = [
 ];
 
 const App = () => {
-  const [expenses, setExpenses] = useState(DUMMY_EXPENSES);
+  const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [accountId, setAccountId] = useState('');
   const [wallet, setWallet] = useState();
-  const [balance, setBalance] = useState();
 
   const loadPage = <main>
     <h2>Loading...</h2>
   </main>
 
-  const addExpenseHandler = (expense) => {
+  const addExpenseHandler = async (title, description, amount, completeDate) => {
+    let expense = {title, description, amount, completeDate, createdAt: new Date().toISOString()};
+    console.log(expense);
+    await Contract(wallet.account()).createNewExpense(expense);
+    
     setExpenses((prevExpenses) => {
       return [expense, ...prevExpenses];
     });
   };
 
+  const getExpenses = async (wallet) => {
+    console.log(wallet.account())
+    let expenses_ = await Contract(wallet.account()).getAllExpenses();
+    console.log(expenses_);
+    setExpenses(expenses_);
+  }
+
   const handleSignIn = async () => {
     setLoading(true);
     setLoggedIn(true);
 
-    setTimeout(async () => {
-      const wallet = await Wallet();
-      console.log(wallet)
+    setTimeout(() => {
+      
+      Wallet().then((tx) => {
 
-      setLoading(false);
-    
-      setWallet(wallet)
-      setAccountId(wallet.getAccountId())
+        setLoading(false);
+      
+        setWallet(tx);
+        setAccountId(tx.getAccountId());
+
+        getExpenses(tx);
+      }).catch((e) => {
+        console.log(e.message)
+      });
+      
     }, 1000)  
 
   }
 
   const handleSignOut = async () => {
-    wallet.SignOut();
+    console.log("out")
+    wallet.signOut();
     setLoggedIn(false);
   }
 
-  useEffect(() => {
+  const handleUpdateExpense = async (expenseId, newAmount, newCompleteDate) => {
+    if (!newAmount) {await Contract(wallet.account()).updateExpenseCompletionDate({expenseId, newCompleteDate}); return;}
+    if (!newCompleteDate) {await Contract(wallet.account()).updateExpenseAmount({expenseId, newAmount}); return;}
+    await Contract(wallet.account()).updateExpenseCompletionDate({expenseId, newCompleteDate});
+    await Contract(wallet.account()).updateExpenseAmount({expenseId, newAmount});
+    await getExpenses(wallet);
+    alert("Expense updated Successfully");
+  }
 
-  })
+  const handleClearExpense = async (expenseId) => {
+    await Contract(wallet.account()).clearExpense({expenseId});
+    await getExpenses(wallet);
+    alert("Expense cleared Successfully");
+  }
+
+  const handleRemoveExpense = async (expenseId) => {
+    await Contract(wallet.account()).removeExpense({expenseId});
+    await getExpenses(wallet);
+    alert("Expense dropped Successfully");
+  }
+
+  const handleDeleteExpense = async (expenseId) => {
+    await Contract(wallet.account()).deleteExpense({expenseId});
+    await getExpenses(wallet);
+    alert("Expense deleted Successfully");
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    setLoggedIn(true);
+
+    Wallet().then((tx) => {
+
+      
+    
+      setWallet(tx);
+      setAccountId(tx.getAccountId());
+
+      getExpenses(tx).then(() => setLoading(false)).catch((e)=> console.log(e.message));
+    }).catch((e) => {
+      console.log(e.message)
+    });
+  }, [])
 
   
 
@@ -80,7 +137,6 @@ const App = () => {
         <div>
           <div>
             <p>{accountId}</p>
-            <h2>{balance}</h2>
           </div>
 
           <button onClick= {handleSignOut}>
@@ -91,7 +147,7 @@ const App = () => {
     </header>
     <div>
       <NewExpense onAddExpense={addExpenseHandler} />
-      <Expenses items={expenses} />
+      <Expenses items={expenses} updateExpense= {handleUpdateExpense} clearExpense={handleClearExpense} removeExpense={handleRemoveExpense} deleteExpense= {handleDeleteExpense} />
     </div></>)}</>
   );
 };

@@ -13,6 +13,28 @@ body {
   background-color: #3f3f3f;
 }
 
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 50px;
+  box-sizing: border-box;
+  background-color: #40005d83;
+  color: white;
+  width: 100%;
+}
+
+header button {
+    font: inherit;
+    cursor: pointer;
+    padding: 5px 20px;
+    border: 0px;
+    background-color: white;
+    color: #40005d;
+    border-radius: 12px;
+    margin-right: 1rem;
+}
+
 #login {
   height: 100vh;
   display: flex;

@@ -26,4 +26,17 @@ export const Wallet = async () => {
 }
 
 
+export const Contract = (account) => {
+    const contract_ = new NearAPI.Contract(account,
+        "expo.leonard0.testnet",
+        {
+            viewMethods: [],
+            changeMethods: ["createNewExpense", "getAllExpenses", "updateExpenseCompletionDate", "updateExpenseAmount","removeExpense", "deleteExpense", "clearExpense"],
+            sender: account
+        });
+
+    return contract_
+}
+
+
 

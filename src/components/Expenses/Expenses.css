@@ -5,3 +5,21 @@
   width: 50rem;
   max-width: 95%;
 }
+
+.expenses-heading {
+  color: white;
+  padding: 0 1rem;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
+}
+
+.expenses-heading select {
+  font: inherit;
+  padding: 0.5rem 3rem;
+  box-sizing: border-box;
+  font-weight: bold;
+  border-radius: 6px;
+}
